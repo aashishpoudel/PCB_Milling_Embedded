@@ -1,0 +1,70 @@
+ #region part 1  
+                //X Step Greater
+                DelayX = (int)PrimDelay;
+                DelayY = 0;
+                               
+                //MessageBox.Show("DelayX=" + DelayX.ToString() + " DelayY=" + DelayY.ToString());
+                XDelay = 65535 - (int)((Freq * Math.Pow(10, 6)) * (DelayX * Math.Pow(10, -3)) / 12);
+                YDelay = 65535 - (int)((Freq * Math.Pow(10, 6)) * (DelayY * Math.Pow(10, -3)) / 12);
+               MessageBox.Show("XDelay=" + XDelay.ToString() + " YDelay=" + YDelay.ToString());
+
+                DataByte[0] = Convert.ToByte((int)(0)); // DataByte[0].0 bit is 0 to indicate milling OFF
+
+                if (XD >= 0) DataByte[0] += Convert.ToByte((int)(2)); // taking clk (1) wise direction positive
+                else if (XD < 0) DataByte[0] += Convert.ToByte((int)(0)); // taking Anticlk (0) wise direction negative 
+                
+                DataByte[0] += Convert.ToByte((int)(8)); // this indicates the undergoing of a process not manual control
+                DataByte[1] = Convert.ToByte((int)(XStep / 256));
+                DataByte[2] = Convert.ToByte(decimal.Remainder(XStep, 256));
+                DataByte[3] = Convert.ToByte((int)(YStep / 256));
+                DataByte[4] = Convert.ToByte(decimal.Remainder(YStep, 256));
+                DataByte[5] = Convert.ToByte((int)(XDelay / 256));
+                DataByte[6] = Convert.ToByte(decimal.Remainder(XDelay, 256));
+                DataByte[7] = Convert.ToByte((int)(YDelay / 256));
+                DataByte[8] = Convert.ToByte(decimal.Remainder(YDelay, 256));
+                Sendserial();
+
+                #endregion
+
+
+
+public void Sendserial()
+        {
+            //serialPort1.Open();
+            while (CTSState == true)
+            {
+                // counter
+                // check if RTS false, CTS false then only send the data
+                // unless both false, undergo looping
+            }
+
+            serialPort1.RtsEnable = true; // assert RTS low to indicate Ready to Send
+            RTSState = true;
+            while (CTSState == false)
+            {
+                // undergo loop until CTS is asserted low by the controller
+            }
+            if (CTSState == true)
+            {
+                //serialPort1.DataBits = 7;    // control word 7 bits  + 1 parity
+                //serialPort1.Parity = System.IO.Ports.Parity.Odd; // using odd parity
+                //serialPort1.RtsEnable = false;   // RTS high to indicate the start of transmission
+                //RTSState = false;
+                //serialPort1.Write(DataByte, 0, 1);// transmit the first databyte, the control word with parity check
+                //serialPort1.DataBits = 8;    // data 8 bit
+                //serialPort1.Parity = System.IO.Ports.Parity.None; // no parity 
+                //serialPort1.Write(DataByte, 1, 8);// next send all the data to the microcontroller
+                serialPort1.Write(DataByte, 0, 9);// next send all the data to the microcontroller
+                serialPort1.RtsEnable = false;
+                RTSState = false;
+
+            }
+            //MessageBox.Show("Sending Done"); 
+            //serialPort1.Close();   
+
+        }
+
+        private void serialPort1_PinChanged(object sender, System.IO.Ports.SerialPinChangedEventArgs e)
+        {
+            CTSState = serialPort1.CtsHolding;
+        }
